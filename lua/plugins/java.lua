@@ -12,9 +12,16 @@ return {
       opts.settings.java.maven = opts.settings.java.maven or {}
       opts.settings.java.maven.downloadSources = true
       
+
       -- Enable decompiled sources if source is missing
       opts.settings.java.references = opts.settings.java.references or {}
       opts.settings.java.references.includeDecompiledSources = true
+
+      opts.settings.java.inlayHints = {
+        parameterNames = {
+          enabled = "none",
+        },
+      }
 
       -- Override full_cmd to use existing Eclipse workspace
       opts.full_cmd = function(opts)

@@ -13,6 +13,8 @@ vim.opt.softtabstop = 4
 vim.opt.clipboard = "unnamedplus"
 vim.opt.foldenable = false
 vim.opt.foldmethod = "manual"
+vim.opt.fixendofline = false
+
 
 -- Force tree-sitter to use gcc
 vim.env.CC = "gcc"
