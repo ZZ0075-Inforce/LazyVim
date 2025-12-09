@@ -13,3 +13,8 @@ vim.opt.softtabstop = 4
 vim.opt.clipboard = "unnamedplus"
 vim.opt.foldenable = false
 vim.opt.foldmethod = "manual"
+
+-- Force tree-sitter to use gcc
+vim.env.CC = "gcc"
+-- Add MinGW bin to PATH so compiled parsers can find runtime DLLs
+vim.env.PATH = vim.env.PATH .. ";C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin"
