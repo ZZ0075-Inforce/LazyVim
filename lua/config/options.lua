@@ -15,7 +15,7 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.foldenable = false
 vim.opt.foldmethod = "manual"
 vim.opt.fixendofline = false
-
+vim.opt.wrap = true
 
 -- Force tree-sitter to use gcc
 vim.env.CC = "gcc"

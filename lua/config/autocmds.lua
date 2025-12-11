@@ -14,3 +14,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.b.autoformat = false
   end,
 })
+
+-- Disable spell checking and wrapping enabled by LazyVim
+vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
