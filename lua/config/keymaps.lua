@@ -16,3 +16,7 @@ for _, ch in ipairs(undo_ch) do
   map("i", ch, ch .. "<C-g>u")
 end
 map("i", "<CR>", "<CR><C-g>u")
+
+-- Call Hierarchy (模仿 Eclipse)
+map("n", "<leader>ci", function() Snacks.picker.lsp_incoming_calls() end, { desc = "Incoming Calls" })
+map("n", "<leader>co", function() Snacks.picker.lsp_outgoing_calls() end, { desc = "Outgoing Calls" })
