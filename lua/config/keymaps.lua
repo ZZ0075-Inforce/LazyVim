@@ -7,7 +7,7 @@ local map = vim.keymap.set
 -- System clipboard integration
 map("v", "<C-c>", '"+y', { desc = "Copy to system clipboard" })
 map("n", "<C-v>", '"+p', { desc = "Paste from system clipboard" })
-map("i", "<C-v>", '<C-r>+', { desc = "Paste from system clipboard" })
+map("i", "<C-v>", "<C-r>+", { desc = "Paste from system clipboard" })
 map("v", "<C-v>", '"+p', { desc = "Paste from system clipboard" })
 
 -- Undo breakpoints
@@ -16,14 +16,6 @@ for _, ch in ipairs(undo_ch) do
   map("i", ch, ch .. "<C-g>u")
 end
 map("i", "<CR>", "<CR><C-g>u")
-
--- Call Hierarchy (模仿 Eclipse)
-map("n", "<leader>ci", function()
-  Snacks.picker.lsp_incoming_calls()
-end, { desc = "Incoming Calls" })
-map("n", "<leader>co", function()
-  Snacks.picker.lsp_outgoing_calls()
-end, { desc = "Outgoing Calls" })
 
 -- Fix for Snacks.picker.git_log_file on Windows (quoting & redirection issue)
 -- We use a custom 'proc' picker to fully control the git command.
