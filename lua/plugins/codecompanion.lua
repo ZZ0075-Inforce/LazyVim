@@ -25,23 +25,23 @@ return {
       opts = {
         language = "zh-TW",
       },
-      rules = {
-        inforceERP = {
-          description = "ERP開發相關規範",
-          files = {
-            -- Literal file paths (absolute or relative to cwd)
-            "~/.copilot/copilot-instructionsERP-instructions.md",
-            "~/.copilot/copilot-instructions.md",
-          },
-        },
-        opts = {
-          chat = {
-            enabled = true,
-            default_rules = "default", -- The rule groups to load
-            autoload = "inforceERP",
-          },
-        },
-      },
+      -- rules = {
+      --   inforceERP = {
+      --     description = "ERP開發相關規範",
+      --     files = {
+      --       -- Literal file paths (absolute or relative to cwd)
+      --       "~/.copilot/copilot-instructionsERP-instructions.md",
+      --       "~/.copilot/copilot-instructions.md",
+      --     },
+      --   },
+      --   opts = {
+      --     chat = {
+      --       enabled = true,
+      --       default_rules = "default", -- The rule groups to load
+      --       autoload = "inforceERP",
+      --     },
+      --   },
+      -- },
       interactions = {
         chat = {
           opts = {
