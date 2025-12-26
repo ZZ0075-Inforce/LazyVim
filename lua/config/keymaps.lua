@@ -106,3 +106,6 @@ end, { desc = "Git Status" })
 map("n", "<leader>gS", function()
   Snacks.picker.git_stash({ cwd = get_git_cwd() })
 end, { desc = "Git Stash" })
+
+-- CodeCompanionChat Toggle
+map({ "n", "v", "i" }, "<C-A-i>", "<cmd>CodeCompanionChat Toggle<cr>", { desc = "CodeCompanionChat Toggle" })
