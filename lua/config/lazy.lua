@@ -15,6 +15,11 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+  -- lazyVim 預帶lua套件管理器，目前似乎用不到先關閉
+  rocks = {
+    enabled = false,
+    hererocks = false,
+  },
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },

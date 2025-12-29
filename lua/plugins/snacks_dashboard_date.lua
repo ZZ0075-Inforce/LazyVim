@@ -1,6 +1,15 @@
 return {
   "snacks.nvim",
-  opts = function(_, opts) 
+  opts = function(_, opts)
+    -- terminal不支援圖片顯示，關閉圖片功能, 修正 checkhealth 報錯：覆寫 image 模組的 health 檢查
+    vim.schedule(function()
+      if _G.Snacks then
+        _G.Snacks.image.health = function()
+          Snacks.health.warn("Image module is disabled (suppressed checks)")
+        end
+      end
+    end)
+
     -- 初始化 dashboard 配置
     opts.dashboard = opts.dashboard or {}
     opts.dashboard.preset = opts.dashboard.preset or {}
@@ -8,16 +17,18 @@ return {
     -- [顏色配置區塊]
     local colors = {
       header = "SnacksDashboardHeader",
-      lunar = "Special",           -- 農曆顏色
-      news_odd = "DiagnosticInfo",  -- 新聞奇數行
-      news_even = "DiagnosticOk",   -- 新聞偶數行
+      lunar = "Special", -- 農曆顏色
+      news_odd = "DiagnosticInfo", -- 新聞奇數行
+      news_even = "DiagnosticOk", -- 新聞偶數行
       keys = "SnacksDashboardKey",
     }
 
     -- 讀取文字檔案內容
     local function read_text_file(path)
       local f = io.open(path, "r")
-      if not f then return nil end
+      if not f then
+        return nil
+      end
       local content = f:read("*a")
       f:close()
       return content
