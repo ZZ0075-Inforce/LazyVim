@@ -7,6 +7,9 @@ return {
       vim.list_extend(opts.ensure_installed, {
         "lua-language-server",
         "stylua",
+        "json-lsp",
+        "prettier",
+        "sql-formatter",
       })
     end,
   },
@@ -16,6 +19,7 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
+        jsonls = {},
         lua_ls = {
           -- mason = false, -- set to true if you don't want this server to be installed with mason
           -- Use this to add any default keymaps

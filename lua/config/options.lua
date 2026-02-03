@@ -17,6 +17,9 @@ vim.opt.foldmethod = "manual"
 vim.opt.fixendofline = false
 vim.opt.wrap = true
 
+-- Disable autoformat globally
+vim.g.autoformat = false
+
 -- Force tree-sitter to use gcc
 vim.env.CC = "gcc"
 -- Add MinGW bin to PATH so compiled parsers can find runtime DLLs
