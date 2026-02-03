@@ -10,6 +10,17 @@ map("n", "<C-v>", '"+p', { desc = "Paste from system clipboard" })
 map("i", "<C-v>", "<C-r>+", { desc = "Paste from system clipboard" })
 map("v", "<C-v>", '"+p', { desc = "Paste from system clipboard" })
 
+-- 永遠將刪除 (d) 和修改 (c) 的內容丟進黑洞暫存器，不影響剪貼簿
+-- 注意：這樣設定後，'d' 就不再是 "剪下"，而是單純的 "刪除"
+-- 1. 處理 delete (d)
+map({ "n", "v" }, "d", '"_d', { desc = "Delete without copying" })
+map("n", "dd", '"_dd', { desc = "Delete line without copying" })
+-- 2. 處理 change (c)
+map({ "n", "v" }, "c", '"_c', { desc = "Change without copying" })
+map("n", "cc", '"_cc', { desc = "Change line without copying" })
+-- 3. 處理 x (單一字元刪除)
+map({ "n", "v" }, "x", '"_x', { desc = "Delete char without copying" })
+
 -- Undo breakpoints
 local undo_ch = { " ", ",", ".", "!", "?", ";", ":" }
 for _, ch in ipairs(undo_ch) do
