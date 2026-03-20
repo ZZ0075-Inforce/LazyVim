@@ -2,8 +2,9 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     opts = function(_, opts)
+      vim.treesitter.language.register("html", "jsp")
       if type(opts.ensure_installed) == "table" then
-        vim.list_extend(opts.ensure_installed, { "lua", "javascript", "vim", "gitcommit", "json", "bash" })
+        vim.list_extend(opts.ensure_installed, { "lua", "javascript", "vim", "gitcommit", "json", "bash", "html" })
       end
       -- Force use of gcc since clang/cl are missing
       require("nvim-treesitter.install").compilers = { "gcc" }

@@ -8,6 +8,7 @@ return {
         "lua-language-server",
         "stylua",
         "json-lsp",
+        "html-lsp",
         "prettier",
         "sql-formatter",
       })
@@ -20,6 +21,9 @@ return {
     opts = {
       servers = {
         jsonls = {},
+        html = {
+          filetypes = { "html", "jsp" },
+        },
         lua_ls = {
           -- mason = false, -- set to true if you don't want this server to be installed with mason
           -- Use this to add any default keymaps
