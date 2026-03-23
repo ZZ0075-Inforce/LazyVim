@@ -9,8 +9,10 @@ return {
         "stylua",
         "json-lsp",
         "html-lsp",
+        "lemminx",
         "prettier",
         "sql-formatter",
+        "xmlformatter",
       })
     end,
   },
@@ -24,6 +26,7 @@ return {
         html = {
           filetypes = { "html", "jsp" },
         },
+        lemminx = {},
         lua_ls = {
           -- mason = false, -- set to true if you don't want this server to be installed with mason
           -- Use this to add any default keymaps
