@@ -22,7 +22,9 @@ return {
         },
       }
 
-      -- Override full_cmd to use existing Eclipse workspace
+      -- Override full_cmd: Eclipse workspace roots reuse the workspace itself as -data
+      -- (keeps existing project imports / JRE mappings); fallback roots use the default
+      -- cache workspace so no .metadata gets created inside a git repo
       opts.full_cmd = function(_opts)
         local fname = vim.api.nvim_buf_get_name(0)
         local root_dir = _opts.root_dir(fname)
@@ -30,20 +32,23 @@ return {
         local cmd = vim.deepcopy(_opts.cmd or {})
 
         if project_name then
-          -- Since root_dir guarantees .metadata exists, we use it directly
+          local is_eclipse_ws = vim.uv.fs_stat(vim.fs.joinpath(root_dir, ".metadata")) ~= nil
           vim.list_extend(cmd, {
             "-configuration",
             _opts.jdtls_config_dir(project_name),
             "-data",
-            root_dir, -- Use project root (containing .metadata) as workspace
+            is_eclipse_ws and root_dir or _opts.jdtls_workspace_dir(project_name),
           })
         end
         return cmd
       end
 
-      -- Modify root_dir detection to ONLY support Eclipse workspace projects
+      -- Root detection: prefer the Eclipse workspace (.metadata) so cross-repo
+      -- references resolve against workspace sources; fall back to the default
+      -- root markers (pom.xml/.git/...) for plain Maven checkouts
+      local default_root_dir = opts.root_dir
       opts.root_dir = function(path)
-        return vim.fs.root(path, { ".metadata" })
+        return vim.fs.root(path, { ".metadata" }) or (default_root_dir and default_root_dir(path)) or nil
       end
     end,
   },
