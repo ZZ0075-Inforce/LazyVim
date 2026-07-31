@@ -2,7 +2,7 @@ return {
   {
     "MeanderingProgrammer/render-markdown.nvim",
     opts = {
-      file_types = { "markdown", "Avante", "codecompanion" },
+      file_types = { "markdown", "codecompanion" },
     },
     ft = { "markdown", "codecompanion" },
     keys = {
