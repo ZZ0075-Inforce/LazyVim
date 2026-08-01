@@ -37,9 +37,11 @@ require("lazy").setup({
   },
   install = { colorscheme = { "tokyonight", "habamax" } },
   checker = {
-    enabled = true, -- check for plugin updates periodically
+    -- 關閉背景定期 git fetch：本機連 GitHub 不穩，曾卡出殭屍 git 程序鎖死 index.lock。
+    -- 更新一律手動 :Lazy update（checker 只影響「有更新」提示數字，不影響更新能力）
+    enabled = false,
     notify = false, -- notify on update
-  }, -- automatically check for plugin updates
+  },
   performance = {
     rtp = {
       -- disable some rtp plugins
