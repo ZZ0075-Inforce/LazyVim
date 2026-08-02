@@ -69,10 +69,10 @@ end
 
 map("n", "<leader>gl", function()
   git_log_picker({ current_file = true, title = "Git Log File" })
-end, { desc = "Git Log File" })
+end, { desc = "日誌（當前檔案）" })
 map("n", "<leader>gL", function()
   git_log_picker({ current_file = false, title = "Git Log" })
-end, { desc = "Git Log" })
+end, { desc = "日誌（專案）" })
 
 -- Helper to get git root
 local function get_git_cwd()
@@ -83,20 +83,20 @@ end
 -- Gitk mappings for Windows
 map("n", "<leader>gk", function()
   vim.fn.jobstart({ "gitk", vim.fn.expand("%:p") }, { cwd = get_git_cwd(), detach = true })
-end, { desc = "Gitk (Current File)" })
+end, { desc = "Gitk（當前檔案）" })
 
 map("n", "<leader>gK", function()
   vim.fn.jobstart({ "gitk" }, { cwd = get_git_cwd(), detach = true })
-end, { desc = "Gitk (Repository)" })
+end, { desc = "Gitk（整個 repo）" })
 
 map("n", "<leader>gD", function()
   Snacks.picker.git_diff({ cwd = get_git_cwd() })
-end, { desc = "Git Diff (Project)" })
+end, { desc = "差異（專案）" })
 
 map("n", "<leader>gs", function()
   Snacks.picker.git_status({ cwd = get_git_cwd() })
-end, { desc = "Git Status" })
+end, { desc = "狀態" })
 
 map("n", "<leader>gS", function()
   Snacks.picker.git_stash({ cwd = get_git_cwd() })
-end, { desc = "Git Stash" })
+end, { desc = "暫存（stash）" })

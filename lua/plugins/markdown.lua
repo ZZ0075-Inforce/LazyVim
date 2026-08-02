@@ -6,7 +6,7 @@ return {
     },
     ft = { "markdown" },
     keys = {
-      { "<leader>um", "<cmd>RenderMarkdown toggle<cr>", desc = "Toggle Render Markdown" },
+      { "<leader>um", "<cmd>RenderMarkdown toggle<cr>", desc = "切換 Markdown 渲染" },
     },
   },
   {
@@ -27,7 +27,7 @@ endfunction
       ]])
     end,
     keys = {
-      { "<leader>uP", "<cmd>MarkdownPreviewToggle<cr>", desc = "Toggle Markdown Preview" },
+      { "<leader>uP", "<cmd>MarkdownPreviewToggle<cr>", desc = "切換 Markdown 預覽" },
     },
   },
 }
