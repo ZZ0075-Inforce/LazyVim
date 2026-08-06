@@ -100,3 +100,58 @@ end, { desc = "狀態" })
 map("n", "<leader>gS", function()
   Snacks.picker.git_stash({ cwd = get_git_cwd() })
 end, { desc = "暫存（stash）" })
+
+-- 格式化選取範圍（覆寫 LazyVim 的 visual mode <leader>cf）
+-- LazyVim 只把 bufnr 傳給 conform，靠 conform 自己偵測 mode 取 selection；
+-- 經 which-key 觸發時 mode 可能已不是 v/V，就會變成整檔格式化。
+-- 這裡改成：明確算出選取行 → 只把那幾行餵給 formatter → 寫回。
+-- 好處是 sql_formatter 這類「CLI 沒有 range 參數」的 formatter 也能精準只動選取範圍。
+map("x", "<leader>cf", function()
+  local mode = vim.api.nvim_get_mode().mode
+  local srow, erow
+  if mode == "v" or mode == "V" or mode == "\22" then
+    srow, erow = vim.fn.line("v"), vim.fn.line(".")
+  else -- 已離開 visual mode，改讀上次選取的 marks
+    srow, erow = vim.fn.line("'<"), vim.fn.line("'>")
+  end
+  if erow < srow then
+    srow, erow = erow, srow
+  end
+
+  local conform = require("conform")
+  local formatters = conform.list_formatters_to_run(0)
+  local names = vim.tbl_map(function(f)
+    return f.name
+  end, formatters)
+
+  -- 沒有 conform formatter（例如 Java 走 jdtls）就退回 LSP range formatting
+  if #names == 0 then
+    local last = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1]
+    vim.lsp.buf.format({
+      bufnr = 0,
+      range = { start = { srow, 0 }, ["end"] = { erow, #last } },
+    })
+    return
+  end
+
+  local lines = vim.api.nvim_buf_get_lines(0, srow - 1, erow, true)
+  -- formatter 輸出一律從第 0 欄開始，先記下原縮排最後補回去
+  local indent = lines[1]:match("^%s*")
+  local stripped = vim.tbl_map(function(l)
+    return (l:gsub("^" .. indent, ""))
+  end, lines)
+
+  local err, new = conform.format_lines(names, stripped, { bufnr = 0, timeout_ms = 5000 })
+  if err or not new then
+    return
+  end
+  while #new > 0 and new[#new]:match("^%s*$") do
+    table.remove(new)
+  end
+  new = vim.tbl_map(function(l)
+    return l == "" and l or indent .. l
+  end, new)
+
+  vim.api.nvim_buf_set_lines(0, srow - 1, erow, true, new)
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+end, { desc = "格式化選取範圍" })
