@@ -14,6 +14,18 @@ vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.softtabstop = 4
 vim.opt.clipboard = "" -- 關閉系統剪貼簿自動同步：y 只進內部暫存器，要進系統剪貼簿一律用 "+y / "+p（覆寫 LazyVim 預設的 unnamedplus）
+
+-- 在預設的 ucs-bom,utf-8,default,latin1 之間插入 cp950（Big5）。
+--
+-- DBA 匯出的正式環境檔案是 Big5。沒有這一項時 utf-8 解不開、只能一路掉到 latin1，
+-- 中文變成 §R°£¹ïÀ³... 的亂碼；更麻煩的是 buffer 裡留著不合法的 UTF-8 位元組，
+-- 一旦 "+y 就會讓 win32yank.exe 在 String::from_utf8().unwrap() 當場 panic
+-- （src\main.rs:83，訊息是 stream did not contain valid UTF-8）。
+--
+-- cp950 排在 utf-8 之後，所以正常的 UTF-8 檔完全不受影響，只有 utf-8 解不開的才輪到它。
+-- 副作用：沒有 BOM 的 UTF-16、或真的是 latin1 的檔會被當成 cp950。在這台
+-- 系統 ACP = 950 的機器上這個交換划算。
+vim.opt.fileencodings = { "ucs-bom", "utf-8", "cp950", "default", "latin1" }
 vim.opt.foldenable = false
 vim.opt.foldmethod = "manual"
 vim.opt.fixendofline = false
