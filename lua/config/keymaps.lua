@@ -101,6 +101,13 @@ map("n", "<leader>gS", function()
   Snacks.picker.git_stash({ cwd = get_git_cwd() })
 end, { desc = "暫存（stash）" })
 
+-- 多 repo 總覽：law_git_workspace 底下一個專案就是 20~30 個獨立 repo，
+-- 上面每一個 map 都只作用於單一 .git，沒有工具能一眼看完整個專案。
+-- util.gitboard 掃出當前 workspace 專案的所有子 repo，依分支分組。
+map("n", "<leader>gw", function()
+  require("util.gitboard").open()
+end, { desc = "Workspace Git 總覽（多 repo）" })
+
 -- 格式化選取範圍（覆寫 LazyVim 的 visual mode <leader>cf）
 -- LazyVim 只把 bufnr 傳給 conform，靠 conform 自己偵測 mode 取 selection；
 -- 經 which-key 觸發時 mode 可能已不是 v/V，就會變成整檔格式化。
