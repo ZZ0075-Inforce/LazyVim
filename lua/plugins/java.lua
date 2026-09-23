@@ -62,6 +62,12 @@ return {
         },
       }
 
+      -- 刻意不用 nvim-jdtls 的 hotcodereplace = "auto"：自動替換交給 HotswapAgent
+      -- （run-tomcat-dcevm.bat 的 autoHotswap），手動備援是 <leader>dh。兩邊都開會重複替換。
+      -- opts.dap 必須保持非 nil，LazyVim 才會呼叫 setup_dap（extras/lang/java.lua）。
+      opts.dap = opts.dap or {}
+      opts.dap.hotcodereplace = nil
+
       -- Override full_cmd: Eclipse workspace roots reuse the workspace itself as -data
       -- (keeps existing project imports / JRE mappings); fallback roots use the default
       -- cache workspace so no .metadata gets created inside a git repo
