@@ -35,7 +35,8 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  install = { colorscheme = { "tokyonight", "habamax" } },
+  -- 安裝畫面用的配色。首選要跟 lua/plugins/colorscheme.lua 選的那個一致。
+  install = { colorscheme = { "rose-pine", "habamax" } },
   checker = {
     -- 關閉背景定期 git fetch：本機連 GitHub 不穩，曾卡出殭屍 git 程序鎖死 index.lock。
     -- 更新一律手動 :Lazy update（checker 只影響「有更新」提示數字，不影響更新能力）
