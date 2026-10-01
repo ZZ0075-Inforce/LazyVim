@@ -218,16 +218,19 @@ return {
     end,
   },
   {
-    -- attach 到外部 Tomcat 的 JPDA（devdeploy/LawPL/run-tomcat.bat，port 5005）。
+    -- attach 到外部 Tomcat 的 JPDA（dev <專案> run，預設 port 5005）。
     --
-    -- LazyVim java extra 內建的 attach 設定沒有帶 projectName，java-debug 的
-    -- JdtSourceLookUpProvider 於是無法把「原始檔路徑」對回 class 的完整名稱，
-    -- setBreakpoints 一律回 verified=false 而且永遠不再送 breakpoint 事件——
-    -- 表現就是中斷點卡在紅色驚嘆號（BreakpointRejected）、操作 UI 不會停。
-    -- 實測不是 class 沒載入：jcmd GC.class_histogram 看得到 PLPSIPOService 已載入。
+    -- 中斷點永遠 unverified（紅色驚嘆號、不會停）的真正原因是路徑斜線，不是 projectName
+    -- （2026-10-01 用 JDI 掛進 jdtls 實測確認）：nvim 的 buffer 名稱是 D:/foo/Bar.java，
+    -- java-debug 0.53.2 的 AdapterUtils.isUri() 用 new URI() 判斷，"D:" 被當成 URI scheme
+    -- → 不轉成 file:/// → toPath() 拋 FileSystemNotFoundException 被吞掉 → AST 為 null
+    -- → className 為 null → 中斷點根本不送到 JVM，也不留任何 log。
+    -- 反斜線 D:\foo\Bar.java 會讓 new URI() 失敗，java-debug 才會正確轉成 URI（VS Code 就是這樣送）。
+    -- 所以下面在送 setBreakpoints／breakpointLocations 前，把 java session 的路徑改成反斜線。
     --
-    -- projectName 要填「中斷點所在原始檔的 Eclipse 專案名」，故兩個專案各給一組，
-    -- attach 時依你要下中斷點的位置選。
+    -- projectName 仍然帶上（java-debug 用它決定 source lookup 與 AST level）：attach 當下讀目前
+    -- buffer 最近的 .project 取 <name>（nvim-dap 會在 session 開始時才執行 config 裡的函式）。
+    -- port 讀 devdeploy/<workspace 目錄名>/env.bat 的 JPDA_PORT，沒有就用 5005。
     "mfussenegger/nvim-dap",
     optional = true,
     -- 手動觸發熱抽換。nvim-jdtls 的 :JdtUpdateHotcode 只在 jdtls attach 後才存在，
@@ -239,7 +242,7 @@ return {
         function()
           local session = require("dap").session()
           if not session then
-            vim.notify("沒有 debug session，先用 <leader>dc attach 到 Tomcat 5005", vim.log.levels.WARN)
+            vim.notify("沒有 debug session，先用 <leader>dc attach 到 dev Tomcat", vim.log.levels.WARN)
             return
           end
           vim.notify("Applying code changes...")
@@ -256,19 +259,53 @@ return {
     },
     opts = function()
       local dap = require("dap")
-      local function attach(project)
-        return {
-          type = "java",
-          request = "attach",
-          name = "Attach Tomcat 5005 (" .. project .. ")",
-          hostName = "127.0.0.1",
-          port = 5005,
-          projectName = project,
-        }
+      local Session = require("dap.session")
+      if vim.fn.has("win32") == 1 and not Session.__java_backslash_patch then
+        local request = Session.request
+        function Session:request(command, arguments, on_result)
+          local src = arguments and arguments.source
+          if self.config and self.config.type == "java" and src and type(src.path) == "string"
+            and (command == "setBreakpoints" or command == "breakpointLocations")
+            and src.path:match("^%a:/") then
+            src.path = src.path:gsub("/", "\\")
+          end
+          return request(self, command, arguments, on_result)
+        end
+        Session.__java_backslash_patch = true
+      end
+      local function read_file(path)
+        local f = path and io.open(path, "r")
+        if not f then
+          return nil
+        end
+        local s = f:read("*a")
+        f:close()
+        return s
+      end
+      local function project_name()
+        local dir = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+        local dotproject = vim.fs.find(".project", { upward = true, path = dir })[1]
+        local s = read_file(dotproject)
+        local name = s and s:match("<name>%s*(.-)%s*</name>")
+        if not name then
+          vim.notify("找不到 .project，projectName 留空：中斷點可能無法驗證", vim.log.levels.WARN)
+        end
+        return name
+      end
+      local function jpda_port()
+        local ws = vim.fs.root(0, { ".metadata" })
+        local s = ws and read_file("D:/lawFile/devdeploy/" .. vim.fs.basename(ws) .. "/env.bat")
+        return tonumber(s and s:match('set "JPDA_PORT=(%d+)"') or 5005)
       end
       dap.configurations.java = {
-        attach("Law-Model"),
-        attach("LawPL"),
+        {
+          type = "java",
+          request = "attach",
+          name = "Attach dev Tomcat（目前檔案的專案）",
+          hostName = "127.0.0.1",
+          port = jpda_port,
+          projectName = project_name,
+        },
       }
     end,
   },
