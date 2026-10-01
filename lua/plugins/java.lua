@@ -62,13 +62,10 @@ return {
         },
       }
 
-      -- 打字 LAG 的兩個來源：
-      -- 1. 補全清單預設不設上限（0），大 workspace 一次回幾千筆，Lua 端解析時主執行緒卡頓。
-      --    jdtls 會依相關度排序，50 筆已涵蓋實際會挑的項目。
-      opts.settings.java.completion = opts.settings.java.completion or {}
-      opts.settings.java.completion.maxResults = 50
-      -- 2. didChange 預設 150ms debounce，幾乎每個字都觸發一次 jdtls 重新檢核（Validate documents）。
-      --    拉到 500ms：打字停頓才送；發補全等 request 前 nvim 會先 flush 待送變更，不影響正確性。
+      -- 打字 LAG：didChange 預設 150ms debounce，幾乎每個字都觸發一次 jdtls 重新檢核
+      -- （Validate documents）。拉到 500ms：打字停頓才送；發補全等 request 前 nvim 會先
+      -- flush 待送變更（lsp/client.lua 的 changetracking.flush），不影響正確性。
+      -- （java.completion.maxResults 不用設：jdtls 預設就是 50。）
       opts.jdtls = opts.jdtls or {}
       opts.jdtls.flags = vim.tbl_extend("force", opts.jdtls.flags or {}, { debounce_text_changes = 500 })
 
