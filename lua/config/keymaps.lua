@@ -80,6 +80,47 @@ local function get_git_cwd()
   return vim.fs.root(path, ".git") or vim.fn.getcwd()
 end
 
+-- <leader>gb：覆寫 LazyVim 的 Git Blame Line（Snacks.picker.git_log_line），
+-- 改用 git blametool（my_config 的 CLITools\git-blametool）開 TortoiseGitBlame，跳到游標那一行。
+-- 先用 --hidden 查「被合併藏起來的 commit」（一般 blame 和 gitk 都看不到的別人修改），
+-- 有的話列出來問要不要改用 first-parent；開視窗時帶 --no-check，不再重問。
+map("n", "<leader>gb", function()
+  local file = vim.fn.expand("%:p")
+  if file == "" then
+    return
+  end
+  file = vim.fs.normalize(file)
+  local cwd = get_git_cwd()
+  local line = tostring(vim.fn.line("."))
+  local function open(first_parent)
+    local cmd = { "git", "blametool", "--no-check", "-L", line }
+    if first_parent then
+      table.insert(cmd, "-f")
+    end
+    table.insert(cmd, file)
+    vim.fn.jobstart(cmd, { cwd = cwd, detach = true })
+  end
+  vim.system({ "git", "blametool", "--hidden", file }, { cwd = cwd, text = true }, vim.schedule_wrap(function(r)
+    if r.code ~= 0 then
+      vim.notify(vim.trim((r.stderr or "") .. (r.stdout or "")), vim.log.levels.ERROR, { title = "git blametool" })
+      return
+    end
+    local hidden = vim.trim(r.stdout or "")
+    if hidden == "" then
+      return open(false)
+    end
+    local msg = "這個檔有 commit 在合併時被藏起來，一般 blame 和 gitk 都看不到：\n\n"
+      .. hidden
+      .. "\n\n改用 first-parent 開？"
+    local choice = vim.fn.confirm(msg, "&First-parent\n&Normal 一般\n&Cancel", 2)
+    if choice == 1 then
+      open(true)
+    elseif choice == 2 then
+      open(false)
+    end
+  end))
+end, { desc = "TortoiseGitBlame（git blametool）" })
+
 -- Gitk mappings for Windows
 map("n", "<leader>gk", function()
   vim.fn.jobstart({ "gitk", vim.fn.expand("%:p") }, { cwd = get_git_cwd(), detach = true })
